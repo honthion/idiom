@@ -78,7 +78,8 @@
         list.forEach((e, index) => {
             $('#idiomSug').append(' <button type="button" ' +
                 'data-toggle="popover" ' +
-                'data-trigger="focus"' +
+                'data-trigger="focus"  ' +
+                'data-placement="bottom" ' +
                 'title="' + e.p + '" ' +
                 'data-content="' + e.e + '"' +
                 'class="result-show-btn  list-group-item list-group-item-action">' + index + "." + e.w + '</button>');
