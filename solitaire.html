@@ -7,11 +7,14 @@
     <meta charset="utf-8">
     <script type="text/javascript">
         console.log("im ready")
-        let url = "./wenzhe_c_y.json";
-        $(document).ready(function (e) {
-            $.getJSON(url, function (result) {
-                console.log(result);
-            })
+        let url = "wenzhe_c_y.json";
+        $.ajax({
+            url: url,//json文件位置
+            type: "GET",//请求方式为get
+            dataType: "json", //返回数据格式为json
+            success: function (data) {//请求成功完成后要执行的方法
+                console.log(data);
+            }
         })
     </script>
 </head>
