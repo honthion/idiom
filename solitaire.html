@@ -33,7 +33,8 @@
 
     function start() {
         let idiomData = storage[data_key];
-        alert(idiomData.length)
+        let idioms = JSON.parse(idiomData);
+        alert(idioms.length)
     }
 
     storage[data_key] ? start() : loadData(start)
