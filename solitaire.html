@@ -44,6 +44,7 @@
     let storage = window.localStorage;
     let IDIOMS = []
     let FIRST_PINYIN_MAP = {}
+    storage[data_key] = ""
 
     function loadData(cbFn) {
         let url = "./data/wenzhe_c_y.json";
