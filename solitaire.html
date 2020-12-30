@@ -5,29 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" href="./source/favicon_io/favicon.ico">
     <link href="./source/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
-    <title>文晢*CYJL</title>
+    <title>文晢*成语接龙</title>
 </head>
 <body>
 <h1>文晢</h1>
 
-<!-- Optional JavaScript; choose one of the two! -->
 
-<!-- Option 1: Bootstrap Bundle with Popper -->
 <script type="text/javascript" language="javascript" src="./source/jquery-1.12.4.js"></script>
-
 <script src="./source/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
-
 <script type="text/javascript">
     console.log("im ready")
-    let url = "./data/wenzhe_c_y.json";
-    $.ajax({
-        url: url,//json文件位置
-        type: "GET",//请求方式为get
-        dataType: "json", //返回数据格式为json
-        success: function (data) {//请求成功完成后要执行的方法
-            console.log(data.length);
-        }
-    })
+    let data_key = "wenzhe_idiom_solitaire"
+    let storage = window.localStorage;
+
+    function loadData(cbFn) {
+        let url = "./data/wenzhe_c_y.json";
+        $.ajax({
+            url: url,
+            type: "GET",
+            dataType: "json",
+            success: function (data) {
+                storage[data_key] = data;
+                cbFn ? cbFn() : "";
+            }
+        })
+    }
+
+    function start() {
+        let idiomData = storage[data_key];
+        alert(idiomData.length)
+    }
+
+    storage[data_key] ? start() : loadData(start)
+
 </script>
 </body>
 </html>
