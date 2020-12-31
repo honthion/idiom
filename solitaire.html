@@ -118,14 +118,15 @@
 
     function start() {
         let voiceMap = storage[FIRST_PINYIN_VOICE_KEY]
-        if (voiceMap) {
+        let idiomData = storage[data_key];
+        let idioms = JSON.parse(idiomData);
+        IDIOMS = idioms;
+        if (voiceMap && IDIOMS) {
             FIRST_PINYIN_VOICE_MAP = JSON.parse(voiceMap)
             $('#loading').modal('hide');
             return;
         }
-        let idiomData = storage[data_key];
-        let idioms = JSON.parse(idiomData);
-        IDIOMS = idioms;
+
         window.pinyinUtil = pinyinUtil
         idioms.forEach((item, index) => {
             putMapList(FIRST_PINYIN_VOICE_MAP, getToneWithNum(item.p.split(" ")[0]), item)
