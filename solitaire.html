@@ -6,6 +6,21 @@
     <link rel="shortcut icon" href="./source/favicon_io/favicon.ico">
     <link href="./source/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <title>文晢*成语接龙</title>
+    <style type="text/css">
+        .list-group-item-new {
+            position: relative;
+            display: block;
+            padding: 10px 15px;
+            padding-top: 10px;
+            padding-right: 15px;
+            padding-bottom: 10px;
+            padding-left: 15px;
+            margin-bottom: -1px;
+            background-color: rgba(0, 0, 0, 0);
+            border: 1px solid rgba(0, 0, 0, 0);
+        }
+
+    </style>
 </head>
 <body>
 
@@ -19,19 +34,26 @@
             </div>
         </div>
         <div class="row">
-            <div class="col-md-10  offset-md-2">
+            <div class="col-md-9  offset-md-2">
                 <input id="idiomInput" type="text" class="form-control" aria-label="Sizing example input"
                        oninput="OnInput (event)"
                        aria-describedby="inputGroup-sizing-lg">
             </div>
+            <div class="col-md-1">
+                <button type="button" onclick="setInput('')" class="btn btn-success">清除</button>
+            </div>
         </div>
         <div class="row">
-            <div class="col-md-10  offset-md-2">
-                <div id="idiomSug" class="list-group">
+            <div class="col-md-9  offset-md-2">
+                <div id="idiomSug" class="list-group"></div>
+            </div>
+            <div class="col-md-1 ">
+                <div id="idiomSugGo" class="list-group">
                 </div>
             </div>
         </div>
     </div>
+</div>
 
 
 </div>
@@ -76,19 +98,25 @@
 
     function packageHtml(list) {
         list.forEach((e, index) => {
-            $('#idiomSug').append(' <button type="button" ' +
-                'data-toggle="popover" ' +
-                'data-trigger="focus"  ' +
-                'data-placement="bottom" ' +
-                'title="' + e.p + '" ' +
-                'data-content="' + e.e + '"' +
-                'class="result-show-btn  list-group-item list-group-item-action">' + index + "." + e.w + '</button>');
+            $('#idiomSug').append(`
+                <button type="button" data-toggle="popover"
+                data-trigger="focus" data-placement="bottom"  title="${e.p}" data-content="${e.e}"
+                class="result-show-btn  list-group-item list-group-item-action">${index + "." + e.w}</button> `);
+            $('#idiomSugGo').append(` <button type="button" word="${e.w}"  class="btn btn-link list-group-item-new new-input">Go</button> `);
         })
+    }
+
+    function setInput(val) {
+        $('#idiomInput').val(val);
+        let evt = document.createEvent('HTMLEvents');
+        evt.initEvent('input', true, true);
+        $("#idiomInput").get(0).dispatchEvent(evt);
     }
 
     function OnInput(event) {
         let search = event.target.value.trim();
         $('#idiomSug').empty();
+        $('#idiomSugGo').empty();
         if (search.length > 1) {//如果是多个就通过文字查询
             let filters = IDIOMS.filter(e => e.w.indexOf(search) > -1);
             packageHtml(filters);
@@ -121,6 +149,11 @@
             container: 'body',
             trigger: 'focus'
         })
+        $('.new-input').click((event) => {
+            let word = $(event.target).attr("word");
+            setInput(word[word.length - 1])
+        })
+
 
     }
 
