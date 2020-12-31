@@ -7,32 +7,47 @@
     <link href="./source/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <title>文晢*成语接龙</title>
     <style type="text/css">
-        .list-group-item-new {
+        .idiom-container .list-group-item-new {
             position: relative;
             display: block;
             padding: 10px 15px;
-            padding-top: 10px;
-            padding-right: 15px;
-            padding-bottom: 10px;
-            padding-left: 15px;
             margin-bottom: -1px;
             background-color: rgba(0, 0, 0, 0);
             border: 1px solid rgba(0, 0, 0, 0);
         }
 
+        .idiom-container .bg-info {
+            background-color: #17a2b8 !important;
+        }
+
+        .idiom-container .bg-success {
+            background-color: #28a745 !important;
+        }
+
+        .idiom-container .bg-warning {
+            background-color: #ffc107 !important;
+        }
+
+        .idiom-container .bg-danger {
+            background-color: #dc3545 !important;;
+        }
+
+
     </style>
 </head>
 <body>
 
-<div class="jumbotron">
-    <div class="container-fluid">
+<div class="jumbotron idiom-container">
+    <div class="container-fluid ">
         <div class="row">
             <div class="col-md-10  offset-md-1 bs-docs-nav navbar navbar-static-top" id="top">
                 <h1 class="display-4">晢哥，你好啊！</h1>
                 <p class="lead">我们开始成语接龙吧！</p>
                 <hr class="my-4">
+
             </div>
         </div>
+
         <div class="row">
             <div class="col-md-8 col-sm-8 col-xs-10 offset-md-2 offset-sm-2 offset-sm-1  ">
                 <input id="idiomInput" type="text" class="form-control" aria-label="Sizing example input"
@@ -56,14 +71,20 @@
     </div>
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="container">
+            <div class="progress">
+                <div class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar"
+                     aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
+            </div>
             <div style="text-align: center;margin: 2% 0">
                 <a href="#top" class="back-to-top">回到顶部</a>
             </div>
+
         </div>
     </nav>
 
 </div>
-<div class="modal fade" id="loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static'>
+<div class="modal fade" id="loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+     data-backdrop='static'>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -93,6 +114,8 @@
     storage[data_key] = ""
     const PATTERN_HANZI = new RegExp("^[\u4E00-\u9FA5]+$");
     const PATTERN_ZIMU = new RegExp("^[A-Za-z]+[0-4]?$");
+    window.IDIOM_PROGRESS = 100;
+    window.timeCheck = "";
 
     function loadData(cbFn) {
         let url = "./data/wenzhe_c_y.json";
@@ -215,11 +238,45 @@
         packageHtml(allWord);
     }
 
+    function setTimeOutGo() {
+        let interval = setInterval(() => {
+            let dom = $('.progress-bar-striped');
+            dom.attr('style', "width: " + window.IDIOM_PROGRESS + "%");
+            if (!$('#idiomInput').val()) {
+                dom.removeClass("active")
+                clearInterval(interval);
+                window.timeCheck = 0;
+                window.IDIOM_PROGRESS = 100;
+            }
+            if (window.IDIOM_PROGRESS >= 0) {
+                window.IDIOM_PROGRESS -= 1;
+            } else {
+                clearInterval(interval);
+                window.timeCheck = 0;
+            }
+
+            dom.removeClass("bg-danger bg-warning bg-info bg-success")
+            dom.addClass("active")
+            if (window.IDIOM_PROGRESS < 20) {
+                dom.addClass("bg-danger")
+            } else if (window.IDIOM_PROGRESS < 40) {
+                dom.addClass("bg-warning")
+            } else if (window.IDIOM_PROGRESS < 60) {
+                dom.addClass("bg-success")
+            } else if (window.IDIOM_PROGRESS < 80) {
+                dom.addClass("bg-info")
+            } else if (window.IDIOM_PROGRESS >= 100) {
+                dom.removeClass("active")
+            }
+        }, 150)
+    }
+
     function OnInput(event) {
         let search = event.target.value.trim();
         search = search.toLocaleLowerCase();
         $('#idiomSug').empty();
         $('#idiomSugGo').empty();
+        window.IDIOM_PROGRESS = 105;
         if (PATTERN_HANZI.test(search)) {
             packageHanzi(search);
         } else if (PATTERN_ZIMU.test(search)) {
@@ -235,6 +292,10 @@
             let word = $(event.target).attr("word");
             setInput(word[word.length - 1])
         })
+        if (!window.timeCheck) {
+            window.timeCheck = 1;
+            setTimeOutGo();
+        }
     }
 
     $('#loading').modal('show');
