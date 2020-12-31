@@ -55,7 +55,7 @@
 
     </div>
     <nav class="navbar navbar-default navbar-fixed-bottom">
-        <div class="container" >
+        <div class="container">
             <div style="text-align: center;margin: 2% 0">
                 <a href="#top" class="back-to-top">回到顶部</a>
             </div>
@@ -63,7 +63,18 @@
     </nav>
 
 </div>
-
+<div class="modal fade" id="loading" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" data-backdrop='static'>
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="myModalLabel">加载中</h4>
+            </div>
+            <div class="modal-body" style="text-align: center">
+                <span id="result"></span>
+            </div>
+        </div>
+    </div>
+</div>
 
 </div>
 
@@ -75,15 +86,13 @@
 <script type="text/javascript">
     console.log("im ready")
     const data_key = "wenzhe_idiom_solitaire"
+    const FIRST_PINYIN_VOICE_KEY = "first_pinyin_voice_map"
     const storage = window.localStorage;
     let IDIOMS = []
-    const FIRST_PINYIN_MAP = {}
-    const FIRST_PINYIN_NO_VOICE_MAP = {}
-    const FIRST_PINYIN_VOICE_MAP = {}
+    let FIRST_PINYIN_VOICE_MAP = {}
     storage[data_key] = ""
     const PATTERN_HANZI = new RegExp("^[\u4E00-\u9FA5]+$");
-    const PATTERN_ZIMU = new RegExp("^[A-Za-z]+$");
-    const PATTERN_ZIMU_NUM = new RegExp("^[A-Za-z]+[0-4]$");
+    const PATTERN_ZIMU = new RegExp("^[A-Za-z]+[0-4]?$");
 
     function loadData(cbFn) {
         let url = "./data/wenzhe_c_y.json";
@@ -98,22 +107,34 @@
         })
     }
 
+    function getToneWithNum(pinyinSignal) {
+        return window.pinyinUtil.getToneWithNum(pinyinSignal).split("").sort(function (a, b) {
+            const PATTERN_ZIMU = new RegExp("[A-Za-z]+");
+            a = PATTERN_ZIMU.test(a) ? "a" : a;
+            b = PATTERN_ZIMU.test(b) ? "a" : b;
+            return b.localeCompare(a, 'zh-CN', {numeric: true})
+        }).join("")
+    }
+
     function start() {
+        let voiceMap = storage[FIRST_PINYIN_VOICE_KEY]
+        if (voiceMap) {
+            FIRST_PINYIN_VOICE_MAP = JSON.parse(voiceMap)
+            $('#loading').modal('hide');
+            return;
+        }
         let idiomData = storage[data_key];
         let idioms = JSON.parse(idiomData);
         IDIOMS = idioms;
         window.pinyinUtil = pinyinUtil
         idioms.forEach((item, index) => {
-            let pinyin_arr = item.p.split(" ")[0];
-            putMapList(FIRST_PINYIN_MAP, pinyin_arr, item)
-            putMapList(FIRST_PINYIN_NO_VOICE_MAP, window.pinyinUtil.removeTone(pinyin_arr), item)
-            putMapList(FIRST_PINYIN_VOICE_MAP, window.pinyinUtil.getToneWithNum(pinyin_arr).split("").sort(function (a, b) {
-                const PATTERN_ZIMU = new RegExp("[A-Za-z]+");
-                a = PATTERN_ZIMU.test(a) ? "a" : a;
-                b = PATTERN_ZIMU.test(b) ? "a" : b;
-                return b.localeCompare(a, 'zh-CN', {numeric: true})
-            }).join(""), item)
+            putMapList(FIRST_PINYIN_VOICE_MAP, getToneWithNum(item.p.split(" ")[0]), item)
+            if (index % 1000 === Math.random() * 1000) {
+                $('#result').html(item.w);
+            }
         })
+        storage[FIRST_PINYIN_VOICE_KEY] = JSON.stringify(FIRST_PINYIN_VOICE_MAP);
+        $('#loading').modal('hide');
     }
 
     function putMapList(map, pinyin, item) {
@@ -126,7 +147,13 @@
     }
 
     function packageHtml(list) {
-        (list || []).forEach((e, index) => {
+        let obj = {};//有助于增加遍历效率
+        list = (list || []).reduce((current, next) => {
+            obj[next.w] && Object.keys(obj).length <= 500 ? "" : obj[next.w] = true && current.push(next);
+            return current;
+        }, [])
+        list = list.slice(0, Math.min(500, list.length))
+        list.forEach((e, index) => {
             $('#idiomSug').append(`
                 <button type="button" data-toggle="popover"
                 data-trigger="focus" data-placement="bottom"  title="${e.p}" data-content="${e.e}"
@@ -157,7 +184,10 @@
             //排序
             let allWord = [];
             fPinyin.forEach(pinyin => {
-                allWord = allWord.concat(FIRST_PINYIN_MAP[pinyin])
+                let toneWithNum = getToneWithNum(pinyin);
+                Object.keys(FIRST_PINYIN_VOICE_MAP).filter(e => e.indexOf(toneWithNum) > -1).forEach(e => {
+                    allWord = allWord.concat(FIRST_PINYIN_VOICE_MAP[e]);
+                })
             })
             allWord = allWord.sort((a, b) => {
                 a.sort = 0;
@@ -174,25 +204,25 @@
     }
 
     function packagePinyin(search) {
-        let allWord = FIRST_PINYIN_NO_VOICE_MAP[search]
-        packageHtml(allWord);
-    }
-
-    function packagePinyinNum(search) {
-        let allWord = FIRST_PINYIN_VOICE_MAP[search]
+        let allWord = []
+        let toneWithNum = pinyinUtil.getToneWithNum(search);
+        Object.keys(FIRST_PINYIN_VOICE_MAP)
+            .filter(e => e.indexOf(toneWithNum) > -1)
+            .forEach(e => {
+                allWord = allWord.concat(FIRST_PINYIN_VOICE_MAP[e]);
+            })
         packageHtml(allWord);
     }
 
     function OnInput(event) {
         let search = event.target.value.trim();
+        search = search.toLocaleLowerCase();
         $('#idiomSug').empty();
         $('#idiomSugGo').empty();
         if (PATTERN_HANZI.test(search)) {
             packageHanzi(search);
         } else if (PATTERN_ZIMU.test(search)) {
             packagePinyin(search);
-        } else if (PATTERN_ZIMU_NUM.test(search)) {
-            packagePinyinNum(search);
         } else {
             event.target.value = event.target.defaultValue
         }
@@ -206,6 +236,7 @@
         })
     }
 
+    $('#loading').modal('show');
     storage[data_key] ? start() : loadData(start)
 
 </script>
