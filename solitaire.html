@@ -55,7 +55,7 @@
                        aria-describedby="inputGroup-sizing-lg">
             </div>
             <div class="col-md-1  col-sm-1 col-xs-1">
-                <button type="button" onclick="setInput('')" class="btn btn-success">清除</button>
+                <button type="button" onclick="setInput('')" class="btn btn-default">清除</button>
             </div>
         </div>
         <div class="row">
@@ -76,9 +76,27 @@
                      aria-valuenow="75" aria-valuemin="0" aria-valuemax="100" style="width: 100%"></div>
             </div>
             <div style="text-align: center;margin: 2% 0">
-                <a href="#top" class="back-to-top">回到顶部</a>
-            </div>
+                <div class="row">
+                    <div class="col-md-4  col-sm-4 col-xs-4">
+                        <button type="button" class="btn btn-default" onclick="startProcess()">
+                            <span class="glyphicon glyphicon-play"></span>
+                        </button>
+                    </div>
+                    <div class="col-md-4  col-sm-4 col-xs-4">
+                        <button type="button" class="btn btn-default">
+                            <a href="#top" class="back-to-top">
+                                <span class="glyphicon glyphicon-arrow-up"></span>
+                            </a>
+                        </button>
+                    </div>
+                    <div class="col-md-4  col-sm-4 col-xs-4">
+                        <button type="button" class="btn btn-default" onclick="resetProcess()">
+                            <span class="glyphicon glyphicon-stop"></span>
+                        </button>
+                    </div>
 
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -116,6 +134,7 @@
     const PATTERN_ZIMU = new RegExp("^[A-Za-z]+[0-4]?$");
     window.IDIOM_PROGRESS = 100;
     window.timeCheck = "";
+    window.intervalProcess = "";
 
     function loadData(cbFn) {
         let url = "./data/wenzhe_c_y.json";
@@ -239,24 +258,12 @@
     }
 
     function setTimeOutGo() {
-        let interval = setInterval(() => {
+        window.intervalProcess = setInterval(() => {
             let dom = $('.progress-bar-striped');
             dom.attr('style', "width: " + window.IDIOM_PROGRESS + "%");
-            if (!$('#idiomInput').val()) {
-                dom.removeClass("active")
-                clearInterval(interval);
-                window.timeCheck = 0;
-                window.IDIOM_PROGRESS = 100;
-            }
-            if (window.IDIOM_PROGRESS >= 0) {
-                window.IDIOM_PROGRESS -= 1;
-            } else {
-                clearInterval(interval);
-                window.timeCheck = 0;
-            }
-
             dom.removeClass("bg-danger bg-warning bg-info bg-success")
             dom.addClass("active")
+            window.IDIOM_PROGRESS -= 1;
             if (window.IDIOM_PROGRESS < 20) {
                 dom.addClass("bg-danger")
             } else if (window.IDIOM_PROGRESS < 40) {
@@ -292,10 +299,22 @@
             let word = $(event.target).attr("word");
             setInput(word[word.length - 1])
         })
-        if (!window.timeCheck) {
-            window.timeCheck = 1;
-            setTimeOutGo();
-        }
+
+    }
+
+    function startProcess() {
+        window.timeCheck = 1;
+        window.IDIOM_PROGRESS = 100;
+        clearInterval(window.intervalProcess);
+        setTimeOutGo();
+    }
+
+    function resetProcess() {
+        let dom = $('.progress-bar-striped');
+        dom.removeClass("active");
+        clearInterval(window.intervalProcess);
+        window.timeCheck = 0;
+        window.IDIOM_PROGRESS = 100;
     }
 
     $('#loading').modal('show');
