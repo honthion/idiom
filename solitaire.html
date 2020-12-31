@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
     <link rel="shortcut icon" href="./source/favicon_io/favicon.ico">
     <link href="./source/bootstrap-3.3.7-dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
     <title>文晢*成语接龙</title>
@@ -25,34 +25,43 @@
 <body>
 
 <div class="jumbotron">
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
-            <div class="col-md-10  offset-md-1">
+            <div class="col-md-10  offset-md-1 bs-docs-nav navbar navbar-static-top" id="top">
                 <h1 class="display-4">晢哥，你好啊！</h1>
                 <p class="lead">我们开始成语接龙吧！</p>
                 <hr class="my-4">
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8  offset-md-2">
+            <div class="col-md-8 col-sm-8 col-xs-10 offset-md-2 offset-sm-2 offset-sm-1  ">
                 <input id="idiomInput" type="text" class="form-control" aria-label="Sizing example input"
                        oninput="OnInput (event)"
                        aria-describedby="inputGroup-sizing-lg">
             </div>
-            <div class="col-md-1">
+            <div class="col-md-1  col-sm-1 col-xs-1">
                 <button type="button" onclick="setInput('')" class="btn btn-success">清除</button>
             </div>
         </div>
         <div class="row">
-            <div class="col-md-8  offset-md-2">
+            <div class="col-md-8  col-sm-8 col-xs-10  offset-md-2 offset-sm-2 offset-xs-1">
                 <div id="idiomSug" class="list-group"></div>
             </div>
-            <div class="col-md-1 ">
+            <div class="col-md-1  col-sm-1 col-xs-1 ">
                 <div id="idiomSugGo" class="list-group">
                 </div>
             </div>
         </div>
+
     </div>
+    <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container" >
+            <div style="text-align: center;margin: 2% 0">
+                <a href="#top" class="back-to-top">回到顶部</a>
+            </div>
+        </div>
+    </nav>
+
 </div>
 
 
@@ -196,6 +205,7 @@
             setInput(word[word.length - 1])
         })
     }
+
     storage[data_key] ? start() : loadData(start)
 
 </script>
