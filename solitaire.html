@@ -283,7 +283,7 @@
         search = search.toLocaleLowerCase();
         $('#idiomSug').empty();
         $('#idiomSugGo').empty();
-        window.IDIOM_PROGRESS = 105;
+
         if (PATTERN_HANZI.test(search)) {
             packageHanzi(search);
         } else if (PATTERN_ZIMU.test(search)) {
@@ -304,7 +304,7 @@
 
     function startProcess() {
         window.timeCheck = 1;
-        window.IDIOM_PROGRESS = 100;
+        window.IDIOM_PROGRESS = 105;
         clearInterval(window.intervalProcess);
         setTimeOutGo();
     }
@@ -314,7 +314,7 @@
         dom.removeClass("active");
         clearInterval(window.intervalProcess);
         window.timeCheck = 0;
-        window.IDIOM_PROGRESS = 100;
+        window.IDIOM_PROGRESS = 105;
     }
 
     $('#loading').modal('show');
